@@ -1,0 +1,10 @@
+attrs==17.3.0
+numpy==1.13.3
+pandas==0.21.0
+pluggy==0.6.0
+py==1.5.2
+pytest==3.3.0
+python-dateutil==2.6.1
+pytz==2017.3
+scipy==1.0.0
+six==1.11.0
