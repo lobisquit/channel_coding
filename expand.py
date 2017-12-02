@@ -1,11 +1,12 @@
+from math import floor
 from pathlib import Path
 
 import pandas as pd
 
 SPECS_PATH = Path('specs')
 
-H_PATHS = SPECS_PATH.glob('H-*')
-BLOCK_SIZE_PATHS = SPECS_PATH.glob('block-size-*')
+H_PATHS = list(SPECS_PATH.glob('H-*'))
+BLOCK_SIZE_PATHS = list(SPECS_PATH.glob('block-size-*'))
 
 def parse_rate(path):
     ''' Get code rate from filename and put a bar between the numbers '''
