@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+
 from math import floor
 from pathlib import Path
 
 import pandas as pd
 
 SPECS_PATH = Path('specs')
+''' pathlib.Path
+        Path of current file subfolder
+'''
 
 def get_compressed_H_matrices():
     '''
