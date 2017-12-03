@@ -3,6 +3,7 @@
 from math import floor
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 SPECS_PATH = Path('specs')
@@ -10,54 +11,35 @@ SPECS_PATH = Path('specs')
         Path of current file subfolder
 '''
 
-def get_compressed_H_matrices():
-    '''
-    Get compressed H matrices for each code rate
+def get_rates():
+    return [parse_rate(rate) for rate in SPECS_PATH.glob('H-*')]
 
-    Returns
-    -------
-    dict {str, np.array}
-        Compressed encoding matrix for each rate, defined by a string
+def get_compressed_H_matrix(rate):
     '''
-    return {parse_rate(f): pd.read_csv(f, header=None)
-            for f in SPECS_PATH.glob('H-*')}
-
-def get_expanded_H_matrices(n, rate):
-    '''
-    Get expanded H matrices for each code rate
+    Get compressed H matrices for given code rate
 
     Parameters
     ----------
-    n: integer
-        Code length
-    rate: str
-        String specifying code rate (ex. '2/3A')
+    rate : str
+        Code rate label (ex. '2/3A')
 
     Returns
     -------
-    dict {str, np.array}
-        Expanded encoding matrix for each rate, defined by a string
+    np.array
+        Compressed encoding matrix
     '''
-    return {rate: expand_H(matrix, n, rate)
-            for rate, matrix in get_compressed_H_matrices().items()}
+    files = SPECS_PATH.glob('H-*')
+    for f in files:
+        if parse_rate(f) == rate:
+            return pd.read_csv(f, header=None).values
 
-def parse_rate(path):
-    '''
-    Get code rate from filename and put a bar
-    between numerator and denominator
-    '''
-    rate = path.stem.split('-')[-1]
-    return rate[:1] + '/' + rate[1:]
-
-def get_block_sizes():
-    ''' Get block sizes table for each code rate '''
-    return {parse_rate(f): pd.read_csv(f)
-            for f in SPECS_PATH.glob('block-size-*')}
+    raise ValueError('Invalid rate: {}'.format(rate))
 
 def expander(num, n, rate):
     '''
     Expand single element of "compressed" matrix, given code
-    length and code rate
+    length and code rate.
+    See p(zf, i, j) in specifications.
 
     Parameters
     ----------
@@ -95,33 +77,25 @@ def expander(num, n, rate):
         # return a circular right shift of identity matrix, of extent p
         return np.roll(np.eye(zf), p)
 
-def expand_H(matrix, n, rate):
+def get_expanded_H_matrix(n, rate):
     '''
-    Apply expander function to each element on matrix,
-    then merge all results in a bigger matrix
+    Get expanded H matrices for given code rate
 
     Parameters
-    -----------
-    matrix: np.array or pd.DataFrame
-        Any numpy array or DataFrame of integer numbers
-    n: integer
+    ----------
+    n : int
         Code length
-    rate: str
-        String specifying code rate (ex. '2/3A')
+    rate : str
+        Code rate label (ex. '2/3A')
 
     Returns
     -------
     np.array
-        Expanded matrix, given code length and rate
+        Compressed encoding matrix
     '''
-
-    # convert dataframe to bare matrix if needed
-    if isinstance(matrix, pd.DataFrame):
-        matrix = matrix.values
-
     # collect all expansions of each line in a list
     out_lines = []
-    for line in matrix:
+    for line in get_compressed_H_matrix(rate):
         out_line = []
         for element in line:
             out_line.append(expander(element, n, rate))
@@ -131,3 +105,42 @@ def expand_H(matrix, n, rate):
 
     # stack all lines together
     return np.vstack(out_lines)
+
+def parse_rate(path):
+    '''
+    Get code rate from filename and put a bar
+    between numerator and denominator
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        File of specific code rate
+
+    Returns
+    -------
+    str
+        Code rate label
+    '''
+    rate = path.stem.split('-')[-1]
+    return rate[:1] + '/' + rate[1:]
+
+def get_block_size(rate):
+    '''
+    Get block sizes table for a code rate
+
+    Parameters
+    ----------
+    rate : str
+        Code rate label (ex. '2/3A')
+
+    Returns
+    -------
+    pd.DataFrame
+        Code specifications table for given rate
+    '''
+    files = SPECS_PATH.glob('block-size-*')
+    for f in files:
+        if parse_rate(f) == rate:
+            return pd.read_csv(f)
+
+    raise ValueError('Invalid rate: {}'.format(rate))
