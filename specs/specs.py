@@ -11,8 +11,21 @@ SPECS_PATH = Path('specs')
         Path of current file subfolder
 '''
 
-def get_rates():
+def get_code_rates():
     return [parse_rate(rate) for rate in SPECS_PATH.glob('H-*')]
+
+def get_code_lengths():
+    '''
+
+    Returns
+    -------
+    list
+        Supported code lengths n in bits
+    '''
+    # note that rate here is chosen arbitrarily, since
+    # all rates support all code lengths
+    block_size_table = get_block_size(get_code_rates()[0])
+    return list(block_size_table['n (bits)'])
 
 def get_compressed_H_matrix(rate):
     '''
@@ -55,18 +68,16 @@ def expander(num, n, rate):
     np.array
         Matrix expansion of single element
     '''
-    zf = n // 24
 
+    # compute expansion factor
+    zf = n // 24
     if zf < 1:
         raise ValueError(
             "Code length n invalid: {n}<24".format(n=n))
 
     if num < 0:
-        return np.zeros( (zf, zf) )
+        return np.zeros((zf, zf), dtype=int)
     else:
-        # compute expansion factor
-        zf = n // 24
-
         # treat special rate 2/3A differently, as specified
         if rate == '2/3A':
             p = num % zf
@@ -75,7 +86,7 @@ def expander(num, n, rate):
             p = floor(num * zf / z0)
 
         # return a circular right shift of identity matrix, of extent p
-        return np.roll(np.eye(zf), p)
+        return np.roll(np.eye(zf, dtype=int), p, axis=1)
 
 def get_expanded_H_matrix(n, rate):
     '''
