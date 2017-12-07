@@ -9,25 +9,32 @@ import LDPC
 from specs import *
 
 
-def test_encoding():
-    ''' Test encoding using sparse matrices of LDPC module '''
-
-    # test a subset of code lengths, in order to
-    # keep testing fast enough
-    for n in random.sample(get_code_lengths(), 5):
+def test_generated_matrix():
+    ''' Generated matrix columns must be in the null space of H '''
+    for n in get_code_lengths():
         for rate in get_code_rates():
-            H = get_expanded_H_matrix(n, rate) # (n-k) x n
-            n = H.shape[1]
-            k = n - H.shape[0]
+            H = sp.csc_matrix(get_expanded_H_matrix(n, rate))
+            G = LDPC.get_generating_matrix(H)
+            F = H.dot(G)
 
-            encoder = LDPC.encoder(H)
+            # accessing data directly is the only way to apply modulo 2
+            # since it is not natively supported by sp.csc_matrix
+            F.data = F.data % 2
+            if F.count_nonzero() != 0:
+                raise Exception(
+                    'Invalid generating matrix for n={}, rate={}'
+                    .format(n, rate))
 
-            for trial in range(0, 50):
-                u = np.random.choice(a=[0, 1], size=k, p=[1/2, 1/2])
+def test_encoder():
+    for n in get_code_lengths():
+        for rate in get_code_rates():
+            H = sp.csc_matrix(get_expanded_H_matrix(n, rate))
 
-                c = encoder(u)
-                if sum(H.dot(c) % 2) != 0:
-                    raise ValueError(
-                        "Error for n={}, rate={}, trial={}"
-                        .format(n, rate, trial)
-                    )
+            k = H.shape[1] - H.shape[0]
+            u = np.random.choice(a=[0, 1], size=k, p=[1/2, 1/2])
+
+            enc = LDPC.encoder(H)
+            if np.count_nonzero(H.dot(enc(u)) % 2) != 0:
+                raise Exception(
+                    'Invalid encoding function for n={}, rate={}'
+                    .format(n, rate))

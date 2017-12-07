@@ -1,1 +1,1 @@
-from .encoder import *
+from .encoder import encoder, get_generating_matrix
