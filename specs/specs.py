@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
-
+import warnings
 from math import floor
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 
 SPECS_PATH = Path('specs')
 ''' pathlib.Path
         Path of current file subfolder
 '''
+
+# ignore warnings related to CSR sparse matrix format
+# since here we do not solve linear systems
+warnings.filterwarnings("ignore", message="splu requires CSC matrix format")
+warnings.filterwarnings("ignore", message="spsolve is more efficient when sparse b is in the CSC matrix format")
+
 
 def get_code_rates():
     return [parse_rate(rate) for rate in SPECS_PATH.glob('H-*')]
@@ -38,7 +45,7 @@ def get_compressed_H_matrix(rate):
 
     Returns
     -------
-    np.array
+    np.ndarray
         Compressed encoding matrix
     '''
     files = SPECS_PATH.glob('H-*')
@@ -65,8 +72,8 @@ def expander(num, n, rate):
 
     Returns
     -------
-    np.array
-        Matrix expansion of single element
+    np.ndarray
+        Matrix expansion of single element, of shap (zf x zf)
     '''
 
     # compute expansion factor
@@ -101,8 +108,8 @@ def get_expanded_H_matrix(n, rate):
 
     Returns
     -------
-    np.array
-        Compressed encoding matrix
+    sp.csr_matrix
+        Compressed encoding matrix, optimized for matrix-vector product
     '''
     # collect all expansions of each line in a list
     out_lines = []
@@ -115,7 +122,8 @@ def get_expanded_H_matrix(n, rate):
         out_lines.append(np.hstack(out_line))
 
     # stack all lines together
-    return np.vstack(out_lines)
+    H = np.vstack(out_lines)
+    return sp.csr_matrix(H)
 
 def parse_rate(path):
     '''
