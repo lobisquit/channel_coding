@@ -2,5 +2,5 @@
 import numpy as np
 import pyximport; pyximport.install(setup_args={"include_dirs" : np.get_include()})
 
-from .decoder import is_codeword, phi_tilde
+from .decoder import *
 from .encoder import encoder, get_generating_matrix
