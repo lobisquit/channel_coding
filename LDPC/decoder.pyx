@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as sp
-from libc.math cimport sqrt, log, exp, pow
+
+from libc.math cimport sqrt, exp, log, pow
 
 cimport cython
 cimport numpy as np
@@ -47,7 +48,15 @@ def is_codeword(H, c):
     parity_check_bits = H.dot(c) % 2
     return np.all(parity_check_bits == 0)
 
-cdef class Matrix:
+cdef class SPMatrix:
+    '''
+    This custom class to describe a Sparse Matrix of
+    double precision floating point numbers.
+
+    Its structure is meant for fast access and value
+    update, while adding new values is not allowed.
+    '''
+
     cdef long[:] row_pointers
     cdef long[:] col_indices
     cdef double[:] data
@@ -56,57 +65,89 @@ cdef class Matrix:
     cdef int n_cols
 
     def __init__(self, matrix):
+        '''
+        Parameters
+        ----------
+        matrix : np.ndarray of numbers
+            Dense matrix to copy in sparse representation
+        '''
         self.n_rows = matrix.shape[0]
         self.n_cols = matrix.shape[1]
 
-        elements = matrix.nonzero()
-        rows, cols = elements[0], elements[1]
-
-        # convert rows vector of indices in vector of pointers in
-        # column and data vectors
         row_pointers = []
+        col_indices = []
+        data = []
 
-        cdef int index
-        for index in range(len(rows)):
-            if index == 0:
-                row_pointers.append(index)
+        # first line starts at index 0 by default
+        row_pointers.append(0)
+        for i in range(0, self.n_rows):
+            for j in range(0, self.n_cols):
+                value = matrix[i, j]
+                if value != 0:
+                    data.append(<double> value)
+                    col_indices.append(j)
 
-            elif rows[index] != rows[index - 1]:
-                for _ in range(rows[index-1], rows[index]):
-                    row_pointers.append(index)
+            # add pointer to the next element to
+            # mark the end of the current line
+            row_pointers.append(len(data))
 
-        # loop through ending lines, if empty
-        for _ in range(rows[-1], self.n_rows - 1):
-            row_pointers.append(self.n_rows)
+        self.row_pointers = np.array(row_pointers, dtype=np.long)
+        self.col_indices = np.array(col_indices, dtype=np.long)
+        self.data = np.array(data, dtype=np.double)
 
-        # store everything in object
-        self.row_pointers = np.array(row_pointers, dtype=long)
-        self.col_indices = np.array(cols, dtype=long)
-        self.data = np.array(matrix.data, dtype=np.double)
+    def get(self, int i, int j):
+        '''
+        Retrieve element
 
-    def tocsr(self):
-        # create numpy array from data
-        cols = np.frombuffer(self.col_indices, dtype=long)
-        data = np.frombuffer(self.data, dtype=np.double)
+        Parameters
+        ----------
+        i : int
+            Row index
+        j : int
+            Column index
 
-        # rebuild rows array
-        rows = []
+        Returns
+        -------
+        float
+            Element (i, j) of matrix
+        '''
+        # get start and ending element of i-th row
+        row_start = self.row_pointers[i]
+        row_stop = self.row_pointers[i + 1]
 
-        cdef int index
-        for index in range(len(self.row_pointers)):
-            start = self.row_pointers[index]
-            if index == len(self.row_pointers) - 1:
-                stop = self.n_rows
-            else:
-                stop = self.row_pointers[index + 1]
+        cdef int el_index
+        # find element with matching column index
+        for el_index in range(row_start, row_stop):
+            col_index = self.col_indices[el_index]
+            if col_index >= j:
+                if col_index == j:
+                    return self.data[el_index]
+                else:
+                    # col_index > j implies that element is empty
+                    # otherwise it would have already been reached
+                    return 0
+        return 0
 
-            for _ in range(start, stop):
-                rows.append(index)
+    def todense(self):
+        '''
+        Revert to dense representation
 
-        print(rows)
-        print(data)
-        print(cols)
+        Returns
+        -------
+        np.ndarray
+            Dense representation
+        '''
+        matrix = np.zeros( (self.n_rows, self.n_cols) )
 
-        coo_matrix = sp.coo_matrix((data, (rows, cols)),
-                                   shape=(self.n_rows, self.n_cols))
-        return coo_matrix.tocsr()
+        cdef int i, el_index
+        for i in range(self.n_rows):
+            start = self.row_pointers[i]
+            stop = self.row_pointers[i + 1]
+
+            # loop through element of current line
+            for el_index in range(start, stop):
+                j = self.col_indices[el_index]
+                value = self.data[el_index]
+
+                matrix[i, j] = value
+        return matrix
