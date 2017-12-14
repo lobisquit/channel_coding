@@ -8,21 +8,21 @@ cimport numpy as np
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def phi_tilde(double[:] x):
+def phi_tilde(np.ndarray[np.double_t, ndim=1] x):
     '''
     Compute function phi tilde
 
     Parameters
     ----------
-    x : cython typed memoryview
+    x : np.ndarray[np.double_t, ndim=1]
         Unidimensional double array
 
     Returns
     -------
-    np.ndarray
+    np.ndarray[np.double_t, ndim=1]
         Array with same shape of x where y[i] = phi(x[i])
     '''
-    y = np.zeros(x.shape[0])
+    y = x.copy()
 
     for i, value in enumerate(x):
         # put a threshold to value too close to 0 or too high

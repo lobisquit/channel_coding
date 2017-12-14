@@ -16,11 +16,11 @@ def phi_definition(x):
     return log( (1+k) / (1-k) )
 
 def test_phi():
-    x = np.logspace(-7, 15)
+    x = np.logspace(-7, 2)
     y = LDPC.phi_tilde(x)
 
     for i, x_value in enumerate(x):
-        assert phi_definition(x_value) == y[i], i
+        assert phi_definition(x_value) == y[i]
 
 def test_SPMatrix_todense():
     ### all-zero matrix
