@@ -6,6 +6,26 @@ from libc.math cimport sqrt, exp, log, pow
 cimport cython
 cimport numpy as np
 
+def is_codeword(H, c):
+    '''
+    Check if c is a codework generated from code corresponding to H
+
+    Parameters
+    ----------
+    H : scipy.sparse.csr_matrix or np.ndarray
+        Parity check matrix of given code (CSR recommended)
+    c : np.ndarray
+        Array of bits of codeword
+
+    Returns
+    -------
+    bool
+        True if codework belongs to H code, False otherwise
+
+    '''
+    parity_check_bits = H.dot(c) % 2
+    return np.all(parity_check_bits == 0)
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def phi_tilde(np.ndarray[np.double_t, ndim=1] x):
@@ -36,25 +56,25 @@ def phi_tilde(np.ndarray[np.double_t, ndim=1] x):
             y[i] = log( (1+k)/(1-k) )
     return y
 
-def is_codeword(H, c):
+def sign(x):
     '''
-    Check if c is a codework generated from code corresponding to H
+    Compute sign of product of element in x
+    Note that 0 is considered positive here.
 
     Parameters
     ----------
-    H : scipy.sparse.csr_matrix or np.ndarray
-        Parity check matrix of given code (CSR recommended)
-    c : np.ndarray
-        Array of bits of codeword
+    x : np.ndarray
+        Input array
 
     Returns
     -------
-    bool
-        True if codework belongs to H code, False otherwise
-
+    int
+        +1 if global sign is positive
+        -1 otherwise
     '''
-    parity_check_bits = H.dot(c) % 2
-    return np.all(parity_check_bits == 0)
+    if np.count_nonzero(x < 0) % 2 == 0:
+        return 1
+    return -1
 
 cdef class SPMatrix:
     '''
