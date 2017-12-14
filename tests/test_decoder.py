@@ -17,13 +17,10 @@ def phi_definition(x):
 
 def test_phi():
     x = np.logspace(-7, 15)
-    def_values = [phi_definition(a) for a in x]
+    y = LDPC.phi_tilde(x)
 
-    # note that vector is modified in place
-    LDPC.phi_tilde(x)
-
-    for i, value in enumerate(x):
-        assert def_values[i] == x[i]
+    for i, x_value in enumerate(x):
+        assert phi_definition(x_value) == y[i], i
 
 def test_SPMatrix_todense():
     ### all-zero matrix

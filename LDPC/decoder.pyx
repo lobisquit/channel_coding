@@ -8,25 +8,33 @@ cimport numpy as np
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def phi_tilde(np.ndarray[np.double_t, ndim=1] x):
+def phi_tilde(double[:] x):
     '''
-    Apply function phi tilde to an array, modifying it in place
+    Compute function phi tilde
 
     Parameters
     ----------
-    x : np.ndarray[np.double, ndim=1]
+    x : cython typed memoryview
         Unidimensional double array
+
+    Returns
+    -------
+    np.ndarray
+        Array with same shape of x where y[i] = phi(x[i])
     '''
+    y = np.zeros(x.shape[0])
+
     for i, value in enumerate(x):
         # put a threshold to value too close to 0 or too high
         if value < 1e-5:
-            x[i] = 12
+            y[i] = 12
         elif value > 12:
-            x[i] = 0
+            y[i] = 0
         else:
             # compute exactly function
             k = exp(-value)
-            x[i] = log( (1+k)/(1-k) )
+            y[i] = log( (1+k)/(1-k) )
+    return y
 
 def is_codeword(H, c):
     '''
