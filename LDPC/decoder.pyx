@@ -159,3 +159,43 @@ cdef class SPMatrix:
 
                 matrix[i, j] = value
         return matrix
+
+    def update(self, func):
+        '''
+        Update all data element by element and so
+        regardless of their positions
+
+        Parameters
+        ----------
+        func : callable
+            Function to apply on a array returning
+            a new array of same shape and type
+        '''
+        self.data = func(np.asarray(self.data))
+
+    def along_rows(self, func):
+        '''
+        Operate the same function on all non-zero
+        elements of each row
+
+        Parameters
+        ----------
+        func : callable
+            Function to apply on an array returning a float
+        Returns
+        -------
+        np.ndarray
+            Scores of each row
+        '''
+        # create output vector to store each line
+        # result of func
+        out = np.zeros(self.n_rows)
+
+        cdef int i
+        for i in range(self.n_rows):
+            start = self.row_pointers[i]
+            stop = self.row_pointers[i + 1]
+
+            # apply func on current line values
+            out[i] = func(np.asarray(self.data[start:stop]))
+        return out
