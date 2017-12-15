@@ -55,21 +55,22 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
     -------
     callable
         Function that receives a real numbered channel measures
-        array and that returns transmitted message estimate
+        array and that returns transmitted message estimate and
+        number of iterations of message passing performed
     '''
     # create function to check words of given code
     is_codeword = codeword_checker(H)
 
+    # convert to sparse representation
     H = SPMatrix(H)
 
     # code information
     n = H.shape[1]
     k = n - H.shape[0]
 
-    # set uniform if input a priori distribution
-    # is not given
+    # set uniform if input a priori distribution is not given
     if u_distrib == None:
-        u_distrib = np.empty((k,))
+        u_distrib = np.empty( (k,) )
         u_distrib.fill(0.5)
 
     # fill channel LLR vector with a priori information
@@ -84,7 +85,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
     ### INIT
     # set all backward messages as constants (TODO check if 0 is good)
-    B.update_all(lambda x: x*0)
+    B.update_all(lambda x: x * 0)
 
     def decode(r):
         ### A PRIORI -> initialize a priori channel knowledge
@@ -92,7 +93,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
         cdef int current_iter
         for current_iter in range(max_iterations):
-            # compute Fij using this precomputed vector b
+            # precompute vector b, sum of columns of B
             b = B.sum_on_columns()
 
             ### ESTIMATION -> marginalization
