@@ -3,7 +3,7 @@ import cython
 import numpy as np
 cimport numpy as np
 
-from libc.math cimport sqrt, exp, log, pow, abs
+from .primitives import *
 
 def is_codeword(H, c):
     '''
@@ -25,19 +25,6 @@ def is_codeword(H, c):
     parity_check_bits = H.dot(c) % 2
     return np.all(parity_check_bits == 0)
 
-from time import time
-
-import numpy as np
-import scipy.sparse as sp
-
-import LDPC
-import specs
-
-H = specs.get_expanded_H_matrix(2304, '1/2')
-H = LDPC.SPMatrix(H)
-
-n = H.shape[1]
-
 def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
     '''
     Create function to decode parity check code desctribed by H
@@ -52,11 +39,10 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
     u_distrib : np.ndarray, optional
         Array of length k where i-th element contains P[u_i == 0]
-        Default value is uniform distribution for all bits
+        Defaults to uniform distribution for all bits
 
     max_iterations : int, optional
         Number of iterations of message passing algorithm
-        Default value is 10
 
     Returns
     -------
@@ -100,8 +86,8 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
             # compute codeword estimates, using b
             c = b + ch
-            c[cw >= 0] = 0
-            c[cw < 0] = 1
+            c[c >= 0] = 0
+            c[c < 0] = 1
 
             # if word is valid, return message estimate and exit
             if LDPC.is_codeword(H, c):
@@ -115,14 +101,14 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
             ### BACKWARD -> check nodes update
 
             # compute total row sign
-            row_signs = F.apply_on_rows(LDPC.global_sign)
+            row_signs = F.apply_on_rows(global_sign)
 
             # transform all values in F, which is valid
             # since they will be rewritten in next cycle
-            F.update_all(LDPC.phi_tilde_vector)
+            F.update_all(phi_tilde_vector)
 
             # precompute total phi value on F rows
-            row_phi = F.apply_on_rows(sum)
+            row_phis = F.apply_on_rows(sum)
 
             # compute sum of phi values in the whole row
             for (i, j), _ in H.items():
@@ -134,9 +120,9 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
                 # note that F[i, j] contains precoputed phi functions
                 B[i, j] = current_row_sign * \
-                          LDPC.phi_tilde(row_phi[i] - F[i, j])
+                          phi_tilde(row_phis[i] - F[i, j])
 
-        # valid codeword was not found up to max_iterations so declare
+        # valid codeword was not found up to max_iterations: declare then
         # failure, returning a vector that, by NaN specification, fails
         # all equality tests with common numbers
         u = np.empty( (k,) )
@@ -144,68 +130,3 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
         return u
 
     return decode
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cpdef phi_tilde_vector(np.ndarray[np.double_t, ndim=1] x):
-    '''
-    Compute function phi tilde
-
-    Parameters
-    ----------
-    x : np.ndarray[np.double_t, ndim=1]
-        Unidimensional double array
-
-    Returns
-    -------
-    np.ndarray[np.double_t, ndim=1]
-        Array with same shape of x where y[i] = phi(x[i])
-    '''
-    y = np.empty(x.shape[0])
-    for i, value in enumerate(x):
-        y[i] = phi_tilde(value)
-    return y
-
-cpdef phi_tilde(double x):
-    '''
-    Compute function phi tilde
-
-    Parameters
-    ----------
-    x : float
-        Indipendent real variable
-
-    Returns
-    -------
-    float
-        Phi tilde computed in x
-    '''
-    x = abs(x)
-    if x < 1e-5:
-        return 12
-    elif x > 12:
-        return 0
-
-    # compute function exactly
-    k = exp(-x)
-    return log( (1+k)/(1-k) )
-
-cpdef global_sign(x):
-    '''
-    Compute sign of product of element in x
-    Note that 0 is considered positive here.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        Input array
-
-    Returns
-    -------
-    int
-        +1 if global sign is positive
-        -1 otherwise
-    '''
-    if np.count_nonzero(x < 0) % 2 == 0:
-        return 1
-    return -1

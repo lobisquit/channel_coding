@@ -16,11 +16,28 @@ def phi_definition(x):
     return log( (1+k) / (1-k) )
 
 def test_phi():
-    x = np.logspace(-7, 2)
-    y = LDPC.phi_tilde(x)
+    for value in np.logspace(-7, 2):
+        assert phi_definition(value) == LDPC.phi_tilde(value)
 
-    for i, x_value in enumerate(x):
-        assert phi_definition(x_value) == y[i]
+def sign_of_vector(x):
+    assert np.all(x != 0), 'Invalid vector to check sign'
+
+    if np.prod(x) > 0:
+        return 1
+    else:
+        return -1
+
+def test_sign():
+    # check against dummy cases
+    correct_ones = {
+        (1, 2, 3) : +1,
+        (1, -1, 3) : -1,
+        (1) : +1,
+        (-2, -2): +1,
+    }
+
+    for vector, correct_sign in correct_ones.items():
+        assert LDPC.global_sign(np.array(vector)) == correct_sign
 
 def test_SPMatrix_todense():
     ### all-zero matrix
@@ -60,14 +77,14 @@ def test_SPMatrix_get_element():
     M = LDPC.SPMatrix(H)
 
     ### nonzero element
-    if not M.get(1, 1) == H[1, 1]:
+    if not M[1, 1] == H[1, 1]:
         raise Exception('Get non-zero element failed')
 
     ### zero element
-    if not M.get(0, 1) == 0:
+    if not M[0, 1] == 0:
         raise Exception('Get zero element failed')
 
     ### zero element before nonzero one
     # this is causes an early escape from column index loop
-    if not M.get(1, 0) == 0:
+    if not M[1, 0] == 0:
         raise Exception('Get zero element exceeding last column member failed')
