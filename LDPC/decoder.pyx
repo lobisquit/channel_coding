@@ -1,11 +1,14 @@
 import cython
-
 import numpy as np
-cimport numpy as np
+import scipy.sparse as sp
 
 from .primitives import *
+from .structures import *
 
-def is_codeword(H, c):
+cimport numpy as np
+
+
+def codeword_checker(H):
     '''
     Check if c is a codework generated from code corresponding to H
 
@@ -13,17 +16,20 @@ def is_codeword(H, c):
     ----------
     H : scipy.sparse.csr_matrix or np.ndarray
         Parity check matrix of given code (CSR recommended)
-    c : np.ndarray
-        Array of bits of codeword
 
     Returns
     -------
-    bool
-        True if codework belongs to H code, False otherwise
-
+    callable
+        Function that returns True if codework belongs to H code
+        and False otherwise
     '''
-    parity_check_bits = H.dot(c) % 2
-    return np.all(parity_check_bits == 0)
+    sparse_H = sp.csr_matrix(H)
+
+    def is_codeword(c):
+        parity_check_bits = H.dot(c) % 2
+        return np.all(parity_check_bits == 0)
+
+    return is_codeword
 
 def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
     '''
@@ -31,7 +37,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
     Parameters
     ----------
-    H : LDPC.SPMatrix
+    H : np.ndarray
         Parity check matrix of code
 
     sigma_w : float
@@ -39,10 +45,11 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
     u_distrib : np.ndarray, optional
         Array of length k where i-th element contains P[u_i == 0]
-        Defaults to uniform distribution for all bits
+        Default value is uniform distribution for all bits
 
     max_iterations : int, optional
         Number of iterations of message passing algorithm
+        Default value is 10
 
     Returns
     -------
@@ -50,6 +57,11 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
         Function that receives a real numbered channel measures
         array and that returns transmitted message estimate
     '''
+    # create function to check words of given code
+    is_codeword = codeword_checker(H)
+
+    H = SPMatrix(H)
+
     # code information
     n = H.shape[1]
     k = n - H.shape[0]
@@ -78,9 +90,10 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
         ### A PRIORI -> initialize a priori channel knowledge
         ch = -2 * r / sigma_w**2 + a_prori_LLR
 
-        for _ in range(max_iterations):
+        cdef int current_iter
+        for current_iter in range(max_iterations):
             # compute Fij using this precomputed vector b
-            b = B.apply_on_rows(sum)
+            b = B.sum_on_columns()
 
             ### ESTIMATION -> marginalization
 
@@ -90,8 +103,8 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
             c[c < 0] = 1
 
             # if word is valid, return message estimate and exit
-            if LDPC.is_codeword(H, c):
-                return c[0:k]
+            if is_codeword(c):
+                return c[0:k], current_iter
 
             ### FORWARD -> variable nodes update
 
@@ -108,7 +121,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
             F.update_all(phi_tilde_vector)
 
             # precompute total phi value on F rows
-            row_phis = F.apply_on_rows(sum)
+            row_phi = F.apply_on_rows(sum)
 
             # compute sum of phi values in the whole row
             for (i, j), _ in H.items():
@@ -120,13 +133,13 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
                 # note that F[i, j] contains precoputed phi functions
                 B[i, j] = current_row_sign * \
-                          phi_tilde(row_phis[i] - F[i, j])
+                          phi_tilde(row_phi[i] - F[i, j])
 
-        # valid codeword was not found up to max_iterations: declare then
+        # valid codeword was not found up to max_iterations so declare
         # failure, returning a vector that, by NaN specification, fails
         # all equality tests with common numbers
         u = np.empty( (k,) )
         u.fill(np.nan)
-        return u
+        return u, max_iterations
 
     return decode

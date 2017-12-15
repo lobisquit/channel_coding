@@ -39,7 +39,7 @@ def get_generating_matrix(H):
 
     Parameters
     ----------
-    H : scipy.sparse.csc_matrix or np.array
+    H : scipy.sparse.csc_matrix or np.ndarray
         Parity check matrix of given code
 
     Returns
@@ -59,7 +59,7 @@ def encoder(H):
 
     Parameters
     ----------
-    H : scipy.sparse.csc_matrix or np.array
+    H : np.ndarray
         Generating matrix
 
     Returns

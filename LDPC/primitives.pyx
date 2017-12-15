@@ -1,9 +1,9 @@
 import cython
-
 import numpy as np
-cimport numpy as np
 
-from libc.math cimport sqrt, exp, log, pow, abs
+from libc.math cimport sqrt, abs, exp, log, pow
+
+cimport numpy as np
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
