@@ -231,3 +231,22 @@ cdef class SPMatrix:
             # apply func on current line values
             out[i] = func(np.asarray(self.data[start:stop]))
         return out
+
+    def sum_on_columns(self):
+        '''
+        Sum elements over columns
+
+        Returns
+        -------
+        np.ndarray
+            Sum of elements in each column
+        '''
+        # create output vector to store each line
+        # result of func
+        out = np.zeros(self.n_cols)
+
+        cdef int el_index, j
+        for el_index, j in enumerate(self.col_indices):
+            out[j] += self.data[el_index]
+
+        return out
