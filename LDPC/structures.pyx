@@ -181,8 +181,16 @@ cdef class SPMatrix:
         func : callable
             Function to apply on a array returning
             a new array of same shape and type
+
+        Returns
+        -------
+        LDPC.SPMatrix
+            Copy of self with values updated
         '''
-        self.data = func(np.asarray(self.data))
+        cdef SPMatrix other = self.copy()
+        other.data = func(np.asarray(other.data))
+
+        return other
 
     def items(self):
         '''
