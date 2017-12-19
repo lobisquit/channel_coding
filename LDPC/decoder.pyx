@@ -7,8 +7,6 @@ from .structures import *
 
 cimport numpy as np
 
-np.set_printoptions(suppress=True, precision=3)
-
 def codeword_checker(H):
     '''
     Check if c is a codework generated from code corresponding to H
@@ -95,21 +93,13 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
         cdef int current_iter
         for current_iter in range(max_iterations):
-            # print('------------------> {}'.format(current_iter))
-
             # precompute vector b, sum of columns of B
             b = B.sum_on_columns()
-
-            # print('b')
-            # print(b)
-            # print('')
 
             ### ESTIMATION -> marginalization
 
             # compute codeword estimates, using b
             c = b + ch
-
-            # print('c = {}'.format(c))
             c[c >= 0] = 0
             c[c < 0] = 1
 
@@ -124,33 +114,17 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
                 # across all j-th column but the i-th element
                 F[i, j] = (b[j] - B[i, j]) + ch[j]
 
-            # print('ch = {}\n'.format(ch))
-            # print('F')
-            # print(F.todense())
-            # print('')
-
             ### BACKWARD -> check nodes update
 
             # compute total row sign
             row_signs = F.apply_on_rows(global_sign)
 
-            # print('row_signs')
-            # print(row_signs)
-            # print('')
-
             # transform all values in F, which is valid
             # since they will be rewritten in next cycle
             PHI = F.update_all(phi_tilde_vector)
 
-            # print('PHI')
-            # print(PHI.todense())
-            # print('')
-
             # precompute sum of phi value of each row
             row_phi = PHI.apply_on_rows(sum)
-            # print('row_phi')
-            # print(row_phi)
-            # print('')
 
             # compute sum of phi values in the whole row
             for (i, j), _ in H.items():
@@ -164,10 +138,6 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
                 # but the j-th element
                 B[i, j] = current_row_sign * \
                           phi_tilde(row_phi[i] - PHI[i, j])
-
-            # print('B')
-            # print(B.todense())
-            # print('')
 
         # valid codeword was not found up to max_iterations so declare
         # failure, returning a vector that, by NaN specification, fails
