@@ -27,7 +27,7 @@ def codeword_checker(H):
     sparse_H = sp.csr_matrix(H)
 
     def is_codeword(c):
-        parity_check_bits = H.dot(c) % 2
+        parity_check_bits = sparse_H.dot(c) % 2
         return np.all(parity_check_bits == 0)
 
     return is_codeword
