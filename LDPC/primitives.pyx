@@ -52,7 +52,7 @@ cpdef phi_tilde(double x):
 
 cpdef global_sign(x):
     '''
-    Compute sign of product of elements in x
+    Compute sign of product of non-zero elements in x
     Note that 0 is considered positive here.
 
     Parameters

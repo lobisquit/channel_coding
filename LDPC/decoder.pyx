@@ -120,7 +120,9 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
             ### FORWARD -> variable nodes update
 
             for (i, j), _ in H.items():
-                F[i, j] = b[i] - B[i, j] + ch[j]
+                # term between brackets is the Backward message sum
+                # across all j-th column but the i-th element
+                F[i, j] = (b[j] - B[i, j]) + ch[j]
 
             # print('ch = {}\n'.format(ch))
             # print('F')
@@ -158,7 +160,8 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
                 else:
                     current_row_sign = row_signs[i]
 
-                # note that F[i, j] contains precoputed phi functions
+                # phi tilde is computed on all terms in i-th row
+                # but the j-th element
                 B[i, j] = current_row_sign * \
                           phi_tilde(row_phi[i] - PHI[i, j])
 
