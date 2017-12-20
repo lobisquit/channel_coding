@@ -5,10 +5,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -98,7 +98,7 @@ def step(n, rate):
 
     # collect results for current couple (n, rate)
     summary = pd.concat(results)
-    summary.to_csv('results/SNRvsPe_n={}_rate={}.csv'\
+    summary.to_csv('results/SNRvsPe_n-{}_rate-{}.csv'\
                    .format(n, rate.replace('/', '')), index=None)
 
 def configurations():
