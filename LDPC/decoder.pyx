@@ -82,12 +82,13 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
     F = H.copy()
     B = H.copy()
 
-    ### INIT
-
-    # set all backward messages as constants (TODO check if 0 is good)
-    B = B.update_all(lambda x: x * 0)
-
     def decode(r):
+        ### INIT
+        nonlocal B, F # explicity use higher lever matrices
+
+        # set all backward messages as constants (TODO check if 0 is good)
+        B = B.update_all(lambda x: x * 0)
+
         ### A PRIORI -> initialize a priori channel knowledge
         ch = -2 * r / sigma_w**2 + a_prori_LLR
 
