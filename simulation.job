@@ -5,10 +5,10 @@
 #$ -e /home/channel_coding/err_simulation.txt
 
 # perform computations in parallel, with 16 processes
-#$ -q parallel
-#$ -l par_cpu=16
+# #$ -q parallel
+# #$ -l par_cpu=16
 
 cd ~/channel_coding/
 
 source venv/bin/activate
-python3 simulation.py
+python3 simulation.py --processes 1

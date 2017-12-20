@@ -1,3 +1,4 @@
+import argparse
 from math import sqrt
 from time import time
 
@@ -105,5 +106,14 @@ def configurations():
         for rate in specs.get_code_rates(): # ['1/2', '5/6'] # dummy
             yield n, rate
 
-# perform all computations in parallel fashion
-Parallel(n_jobs=16)(delayed(step)(*config) for config in configurations())
+# read wanted number of processes
+parser = argparse.ArgumentParser(description='Test LDPC codes.')
+parser.add_argument('--processes', dest='processes', type=int, default=1)
+cmd_args = parser.parse_args()
+
+if cmd_args.processes == 1:
+    for config in configurations():
+        step(*config)
+else:
+    # perform all computations in parallel fashion if requested
+    Parallel(jobs=cmd_args.processes)(delayed(step)(*config) for config in configurations())
