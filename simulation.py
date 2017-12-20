@@ -4,6 +4,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
@@ -22,75 +23,87 @@ MAX_ITERATIONS = 10
 ## main setup
 SNRs = np.arange(0.5, 4.6, step=0.5) ## Eb/N0
 
-results = []
-for n in specs.get_code_lengths():
-    for rate in specs.get_code_rates():
-        H = specs.get_expanded_H_matrix(n, rate)
-        k = n - H.shape[0]
+def step(n, rate):
+    H = specs.get_expanded_H_matrix(n, rate)
+    k = n - H.shape[0]
 
-        # setup encoder functions
-        enc = LDPC.encoder(H)
+    # setup encoder functions
+    enc = LDPC.encoder(H)
 
-        for SNR in SNRs:
-            print('n = {}, rate = {}, SNR = {}'.format(n, rate, SNR))
+    results = []
+    for SNR in SNRs:
+        # print('n = {}, rate = {}, SNR = {}'.format(n, rate, SNR))
 
-            # compute noise standard deviation, given a binary code (M=2)
-            # of rate ?? used in a passband communication
-            sigma_w = sqrt(1 / SNR)
+        # compute noise standard deviation, given a binary code (M=2)
+        # of rate ?? used in a passband communication
+        sigma_w = sqrt(1 / SNR)
 
-            # setup decoder functions
-            dec = LDPC.decoder(H, sigma_w, max_iterations=MAX_ITERATIONS)
+        # setup decoder functions
+        dec = LDPC.decoder(H, sigma_w, max_iterations=MAX_ITERATIONS)
 
-            # count number of tested words, errors, failures and
-            # number of iterations needed for convergence
-            n_words = 0
-            n_errors = 0
-            n_failures = 0
-            n_iterations = 0
+        # count number of tested words, errors, failures and
+        # number of iterations needed for convergence
+        n_words = 0
+        n_errors = 0
+        n_failures = 0
+        n_iterations = 0
 
-            # measure total time taken per word
-            start = time()
-            while n_errors + n_failures < MAX_N_ERRORS and n_words < MAX_N_WORDS:
-                print('n_errors = {}, n_failures = {}, n_words = {}'\
-                      .format(n_errors, n_failures, n_words), end='\r')
-                u = np.random.choice(a=[0, 1], size=k)
+        # generate always the same uniform messages,
+        # in order to obtain smoother SNR-Pe curves
+        np.random.seed(0)
 
-                c = enc(u)                       ## ENCODE
-                d = LDPC.modulate(c)             ## MODULATE
-                r = LDPC.channel(d, sigma_w)     ## add CHANNEL noise
+        # measure total time taken per word
+        start = time()
+        while n_errors + n_failures < MAX_N_ERRORS and n_words < MAX_N_WORDS:
+            # print('n_errors = {}, n_failures = {}, n_words = {}'\
+                # .format(n_errors, n_failures, n_words), end='\r')
 
-                u_prime, current_n_iter = dec(r) ## DECODE
+            u = np.random.choice(a=[0, 1], size=k)
 
-                ## update PERFORMANCE measures
+            c = enc(u)                       ## ENCODE
+            d = LDPC.modulate(c)             ## MODULATE
+            r = LDPC.channel(d, sigma_w)     ## add CHANNEL noise
 
-                n_iterations += current_n_iter
-                n_words += 1
+            u_prime, current_n_iter = dec(r) ## DECODE
 
-                # report failure if word decoding fails
-                if np.all(np.isnan(u_prime)):
-                    n_failures += 1
-                # if decoded word was the wrong one, report an error
-                elif not np.all(u_prime == u):
-                    n_errors += 1
+            ## update PERFORMANCE measures
 
-            ## REPORT
+            n_iterations += current_n_iter
+            n_words += 1
 
-            current_result = pd.DataFrame({
-                'n'             : [n],
-                'rate'          : rate,
-                'SNR'           : SNR,
-                # note that traditional wrong decoding probabilility
-                # is the sum of the following ones, that are disjoint
-                # "bad" decoding events
-                'Perror'        : n_errors         / n_words,
-                'Pfailure'      : n_failures       / n_words,
-                'iterations'    : n_iterations     / n_words,
-                'time per word' : (time() - start) / n_words,
-                'n words'       : n_words
-            })
-            results.append(current_result)
-        break
-    break
+            # report failure if word decoding fails
+            if np.all(np.isnan(u_prime)):
+                n_failures += 1
+            # if decoded word was the wrong one, report an error
+            elif not np.all(u_prime == u):
+                n_errors += 1
 
-summary = pd.concat(results)
-print(summary)
+        ## REPORT
+
+        current_result = pd.DataFrame({
+            'n'             : [n],
+            'rate'          : rate,
+            'SNR'           : SNR,
+            # note that traditional wrong decoding probabilility
+            # is the sum of the following ones, that are disjoint
+            # "bad" decoding events
+            'Perror'        : n_errors         / n_words,
+            'Pfailure'      : n_failures       / n_words,
+            'iterations'    : n_iterations     / n_words,
+            'time per word' : (time() - start) / n_words,
+            'n words'       : n_words
+        })
+        results.append(current_result)
+
+    # collect results for current couple (n, rate)
+    summary = pd.concat(results)
+    summary.to_csv('results/SNRvsPe_n={}_rate={}.csv'\
+                   .format(n, rate.replace('/', '')), index=None)
+
+def configurations():
+    for n in specs.get_code_lengths(): # [576, 672] # dummy
+        for rate in specs.get_code_rates(): # ['1/2', '5/6'] # dummy
+            yield n, rate
+
+# perform all computations in parallel fashion
+Parallel(n_jobs=16)(delayed(step)(*config) for config in configurations())
