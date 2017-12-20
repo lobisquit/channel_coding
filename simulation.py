@@ -22,7 +22,7 @@ MAX_ITERATIONS = 10
 ## main setup
 SNRs = np.arange(0.5, 4.6, step=0.5) ## Eb/N0
 
-results = pd.DataFrame()
+results = []
 for n in specs.get_code_lengths():
     for rate in specs.get_code_rates():
         H = specs.get_expanded_H_matrix(n, rate)
@@ -76,19 +76,21 @@ for n in specs.get_code_lengths():
             ## REPORT
 
             current_result = pd.DataFrame({
-                'n'            : [n],
-                'rate'         : rate,
-                'SNR'          : SNR,
+                'n'             : [n],
+                'rate'          : rate,
+                'SNR'           : SNR,
                 # note that traditional wrong decoding probabilility
                 # is the sum of the following ones, that are disjoint
                 # "bad" decoding events
-                'Perror'       : n_errors         / n_words,
-                'Pfailure'     : n_failures       / n_words,
-                'n_iterations' : n_iterations     / n_words,
-                'time'         : (time() - start) / n_words,
+                'Perror'        : n_errors         / n_words,
+                'Pfailure'      : n_failures       / n_words,
+                'iterations'    : n_iterations     / n_words,
+                'time per word' : (time() - start) / n_words,
+                'n words'       : n_words
             })
-            results = pd.concat((results, current_result))
+            results.append(current_result)
         break
     break
 
-print(results)
+summary = pd.concat(results)
+print(summary)
