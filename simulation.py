@@ -77,12 +77,13 @@ def step(n, rate):
             n_iterations += current_n_iter
             n_words += 1
 
-            # report failure if word decoding fails
-            if np.all(np.isnan(u_prime)):
-                n_failures += 1
-            # if decoded word was the wrong one, report an error
-            elif not np.all(u_prime == u):
-                n_errors += 1
+            if not np.all(u_prime == u):
+                if np.all(np.isnan(u_prime)):
+                    # report failure if word decoding fails
+                    n_failures += 1
+                else:
+                    # if decoded word was the wrong one, report an error
+                    n_errors += 1
 
         ## REPORT
 
