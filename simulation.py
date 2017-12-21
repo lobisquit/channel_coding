@@ -5,16 +5,17 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
-# maximum number of errors and words per (n, rate, SNR) configuration
-MAX_N_ERRORS = 10
-MAX_N_WORDS = 100
+# maximum number of words per (n, rate, SNR) configuration
+MAX_N_WORDS = 10000
+MIN_N_ERRORS = 100
+MIN_N_CORRECT = 100
 
 # maximum number of iterations of message passing algorithm
 # NOTE that time per word is roughly upper bounded by 0.8 * MAX_ITERATIONS
@@ -60,7 +61,12 @@ def step(n, rate):
 
         # measure total time taken per word
         start = time()
-        while n_errors + n_failures < MAX_N_ERRORS and n_words < MAX_N_WORDS:
+
+        # collect as many wrong and correct decoding,
+        # always keeping number of iterations limited
+        while n_words < MAX_N_WORDS and \
+              (n_errors + n_failures > MIN_N_ERRORS or \
+              n_words - (n_errors + n_failures) > MIN_N_CORRECT):
             # print('n_errors = {}, n_failures = {}, n_words = {}'\
                 # .format(n_errors, n_failures, n_words), end='\r')
 
