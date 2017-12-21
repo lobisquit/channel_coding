@@ -25,6 +25,9 @@ MAX_ITERATIONS = 10
 SNRs = np.arange(0.5, 4.6, step=0.5) ## Eb/N0
 
 def step(n, rate):
+    # extract rate from label (removing last letter if any)
+    R = eval(rate[:3])
+
     H = specs.get_expanded_H_matrix(n, rate)
     k = n - H.shape[0]
 
@@ -35,9 +38,11 @@ def step(n, rate):
     for SNR in SNRs:
         # print('n = {}, rate = {}, SNR = {}'.format(n, rate, SNR))
 
-        # compute noise standard deviation, given a binary code (M=2)
-        # of rate ?? used in a passband communication
-        sigma_w = sqrt(1 / SNR)
+        # compute noise standard deviation, given a binary PAM (M=2)
+        # of rate R and SNR = Eb/N0
+        # $ \sigma_w = \frac{E_s}{2R ` \log_2 M ` \Gamma} $
+        # where $ E_s = 1, M=2, \Gamma = \frac{E_b}{N_0} $
+        sigma_w = sqrt(1 / (2 * R * SNR))
 
         # setup decoder functions
         dec = LDPC.decoder(H, sigma_w, max_iterations=MAX_ITERATIONS)
