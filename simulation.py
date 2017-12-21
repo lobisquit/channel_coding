@@ -62,11 +62,11 @@ def step(n, rate):
         # measure total time taken per word
         start = time()
 
-        # collect as many wrong and correct decoding,
-        # always keeping number of iterations limited
+        # proceed until maximum word quota is exceeded or wanted
+        # number of bad decoding and correct words is reached
         while n_words < MAX_N_WORDS and \
-              (n_errors + n_failures > MIN_N_ERRORS or \
-              n_words - (n_errors + n_failures) > MIN_N_CORRECT):
+              (n_errors + n_failures < MIN_N_ERRORS or \
+              n_words - (n_errors + n_failures) < MIN_N_CORRECT):
             # print('n_errors = {}, n_failures = {}, n_words = {}'\
                 # .format(n_errors, n_failures, n_words), end='\r')
 
