@@ -5,15 +5,15 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
 # maximum number of words per (n, rate, SNR) configuration
-MAX_N_WORDS = 10000
+MAX_N_WORDS = 100
 MIN_N_ERRORS = 100
 MIN_N_CORRECT = 100
 
