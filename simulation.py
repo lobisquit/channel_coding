@@ -1,14 +1,15 @@
 import argparse
 from math import sqrt
+from pathlib import Path
 from time import time
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -129,3 +130,8 @@ if cmd_args.processes == 1:
 else:
     # perform all computations in parallel fashion if requested
     Parallel(jobs=cmd_args.processes)(delayed(step)(*config) for config in configurations())
+
+# merge all resulting csv
+csvs = Path('results/').glob('SNRvsPe_*.csv')
+data = pd.concat([pd.read_csv(csv) for csv in csvs])
+data.to_csv('results/SNRvsPe.csv', index=None)
