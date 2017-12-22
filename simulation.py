@@ -14,17 +14,15 @@ from joblib import Parallel, delayed
 ## simulation parameters
 
 # maximum number of words per (n, rate, SNR) configuration
-MAX_N_WORDS = 100
-MIN_N_ERRORS = 100
-MIN_N_CORRECT = 100
+N_WORDS = 1000
 
 # maximum number of iterations of message passing algorithm
 # NOTE that time per word is roughly upper bounded by 0.8 * MAX_ITERATIONS
 # (0.8s / cycle was assessed for n=2304, rate 1/2, biggest matrix)
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 20
 
 ## main setup
-SNRs = np.arange(0.5, 4.6, step=0.5) ## Eb/N0
+SNRs = np.linspace(1, 3, num=10) ## Eb/N0
 
 def step(n, rate):
     # extract rate from label (removing last letter if any)
@@ -65,9 +63,7 @@ def step(n, rate):
 
         # proceed until maximum word quota is exceeded or wanted
         # number of bad decoding and correct words is reached
-        while n_words < MAX_N_WORDS and \
-              (n_errors + n_failures < MIN_N_ERRORS or \
-              n_words - (n_errors + n_failures) < MIN_N_CORRECT):
+        while n_words < N_WORDS:
             # print('n_errors = {}, n_failures = {}, n_words = {}'\
                 # .format(n_errors, n_failures, n_words), end='\r')
 
