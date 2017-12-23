@@ -1,6 +1,7 @@
 from math import exp, log
 
 import numpy as np
+import pytest
 
 import LDPC
 import specs
@@ -64,6 +65,8 @@ def test_SPMatrix_todense():
     if not np.all(H_prime == H):
         raise Exception('Dense SPMatrix conversion is not reversible')
 
+@pytest.mark.specs
+def test_SPMatrix_todense_with_specs():
     ### LDPC biggest encoding matrix
     H = specs.get_expanded_H_matrix(2304, '1/2')
 

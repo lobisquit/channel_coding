@@ -11,6 +11,7 @@ from specs import *
 
 
 @pytest.mark.slowtest
+@pytest.mark.specs
 def test_generated_matrix():
     ''' Generated matrix columns must be in the null space of H '''
     for n in get_code_lengths():
@@ -28,6 +29,7 @@ def test_generated_matrix():
                     .format(n, rate))
 
 @pytest.mark.slowtest
+@pytest.mark.specs
 def test_encoder():
     for n in get_code_lengths():
         for rate in get_code_rates():
