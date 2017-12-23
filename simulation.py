@@ -79,10 +79,10 @@ def step(n, rate):
             n_iterations.append(current_n_iter)
             n_words += 1
 
-            if not np.all(u_prime == u):
-                is_error.append(True)
-            else:
+            if np.all(u_prime == u):
                 is_error.append(False)
+            else:
+                is_error.append(True)
 
         ## REPORT
 
