@@ -105,3 +105,6 @@ venv.bak/
 
 # partial results (while global one is kept)
 results/SNRvsPe_*.csv
+
+# specification files
+specs/*.csv
