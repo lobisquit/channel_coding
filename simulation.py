@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -47,12 +47,11 @@ def step(n, rate):
         # setup decoder functions
         dec = LDPC.decoder(H, sigma_w, max_iterations=MAX_ITERATIONS)
 
-        # count number of tested words, errors, failures and
-        # number of iterations needed for convergence
+        # count number of tested words and number
+        # of iterations needed for each word
         n_words = 0
-        n_errors = 0
-        n_failures = 0
-        n_iterations = 0
+        n_iterations = []
+        is_error = []
 
         # generate always the same uniform messages,
         # in order to obtain smoother SNR-Pe curves
@@ -77,31 +76,26 @@ def step(n, rate):
 
             ## update PERFORMANCE measures
 
-            n_iterations += current_n_iter
+            n_iterations.append(current_n_iter)
             n_words += 1
 
             if not np.all(u_prime == u):
-                if np.all(np.isnan(u_prime)):
-                    # report failure if word decoding fails
-                    n_failures += 1
-                else:
-                    # if decoded word was the wrong one, report an error
-                    n_errors += 1
+                is_error.append(True)
+            else:
+                is_error.append(False)
 
         ## REPORT
 
         current_result = pd.DataFrame({
-            'n'             : [n],
+            'n'             : n,
             'rate'          : rate,
             'SNR'           : SNR,
-            # note that traditional wrong decoding probabilility
-            # is the sum of the following ones, that are disjoint
-            # "bad" decoding events
-            'Perror'        : n_errors         / n_words,
-            'Pfailure'      : n_failures       / n_words,
-            'iterations'    : n_iterations     / n_words,
             'time per word' : (time() - start) / n_words,
-            'n words'       : n_words
+            'n words'       : n_words,
+            # n_iterations and is_error list replicates
+            # all other fields, as wanted
+            'iterations'    : n_iterations,
+            'is_error'      : is_error,
         })
         results.append(current_result)
 
