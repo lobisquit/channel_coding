@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# partial results (while global one is kept)
+results/SNRvsPe_*.csv
