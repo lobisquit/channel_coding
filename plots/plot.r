@@ -24,11 +24,15 @@ p <- ggplot(data = data[data$Pe != 0,],
   ## geom_point(data = data[data$Pe == 1,], colour = "red") +
 
   facet_wrap(~ rate, ncol = 2) +
-  my_theme()
+  my_theme() +
+  theme(
+    plot.background = element_rect(fill = 'transparent')
+  )
 
-## ggsave(plot=p,
-##        filename='plots/figures/SNRvsPe.png',
-##        unit='cm',
-##        device='png')
+## ggsave(plot = p,
+##        filename = 'plots/figures/SNRvsPe.png',
+##        unit = 'cm',
+##        device = 'png',
+##        bg = 'transparent')
 
 p
