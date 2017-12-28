@@ -51,7 +51,7 @@ def step(n, rate):
         # of iterations needed for each word
         n_words = 0
         n_iterations = []
-        is_error = []
+        errors = []
 
         # generate always the same uniform messages,
         # in order to obtain smoother SNR-Pe curves
