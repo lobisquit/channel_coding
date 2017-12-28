@@ -6,25 +6,22 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
 # maximum number of words per (n, rate, SNR) configuration
-N_WORDS = 1000
+N_WORDS = 10000
 
 # maximum number of iterations of message passing algorithm
 # NOTE that time per word is roughly upper bounded by 0.8 * MAX_ITERATIONS
 # (0.8s / cycle was assessed for n=2304, rate 1/2, biggest matrix)
 MAX_ITERATIONS = 20
 
-## main setup
-SNRs = np.linspace(1, 3, num=10) ## Eb/N0
-
-def step(n, rate):
+def step(n, rate, SNRs):
     # extract rate from label (removing last letter if any)
     R = eval(rate[:3])
 
@@ -104,9 +101,17 @@ def step(n, rate):
                    .format(n, rate.replace('/', '')), index=None)
 
 def configurations():
-    for n in specs.get_code_lengths(): # [576, 672] # dummy
-        for rate in specs.get_code_rates(): # ['1/2', '5/6'] # dummy
-            yield n, rate
+    # extract ones with (current) zero probability of error
+    current_result = pd.read_csv('results/SNRvsPe.csv.gz')
+    current_result = current_result.groupby(['n', 'rate', 'SNR']).mean()
+    current_result = current_result[current_result['errors'] == 0]
+
+    # remove SNR from index
+    current_result.reset_index(level=2, inplace=True)
+
+    for n, rate in current_result.index:
+        SNRs = current_result.loc[n, rate]['SNR'].unique()
+        yield n, rate, SNRs
 
 # read wanted number of processes
 parser = argparse.ArgumentParser(description='Test LDPC codes.')
