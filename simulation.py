@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -80,9 +80,9 @@ def step(n, rate):
             n_words += 1
 
             if np.all(u_prime == u):
-                is_error.append(False)
+                errors.append(0)
             else:
-                is_error.append(True)
+                errors.append(1)
 
         ## REPORT
 
@@ -91,11 +91,10 @@ def step(n, rate):
             'rate'          : rate,
             'SNR'           : SNR,
             'time per word' : (time() - start) / n_words,
-            'n words'       : n_words,
             # n_iterations and is_error list replicates
             # all other fields, as wanted
             'iterations'    : n_iterations,
-            'is_error'      : is_error,
+            'errors'        : errors,
         })
         results.append(current_result)
 
@@ -124,7 +123,7 @@ else:
 # merge all resulting csv
 csvs = list( Path('results/').glob('SNRvsPe_*.csv') )
 data = pd.concat([pd.read_csv(csv) for csv in csvs])
-data.to_csv('results/SNRvsPe.csv', index=None)
+data.to_csv('results/SNRvsPe.csv.gz', index=None, compression='gzip')
 
 # delete chunks, leaving complete pack
 for csv in csvs:
