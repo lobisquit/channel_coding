@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -52,7 +52,7 @@ def step(n, rate, SNRs):
 
         # generate always the same uniform messages,
         # in order to obtain smoother SNR-Pe curves
-        np.random.seed(0)
+        np.random.seed(1)
 
         # measure total time taken per word
         start = time()
