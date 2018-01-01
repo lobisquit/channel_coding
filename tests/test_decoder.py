@@ -1,16 +1,16 @@
 from math import exp, log
 
 import numpy as np
-import pytest
 
 import LDPC
+import pytest
 import specs
 
 
 def phi_definition(x):
     # those thresholds were proposed during the lesson
     if x < 1e-5:
-        return 12
+        return 12.206
     if x > 12:
         return 0
     k = exp(-x)

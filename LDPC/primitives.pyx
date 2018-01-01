@@ -42,7 +42,7 @@ cpdef phi_tilde(double x):
     '''
     x = abs(x)
     if x < 1e-5:
-        return 12
+        return 12.206 # phi_tilde(1e-5)
     elif x > 12:
         return 0
 
