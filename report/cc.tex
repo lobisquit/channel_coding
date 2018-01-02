@@ -19,10 +19,9 @@
 \usepackage{tikz}      % Diagrams
 \usetikzlibrary{calc, shapes, backgrounds}
 \usepackage{amsmath, amssymb}
+\usepackage{mathtools}
 \usepackage{url}       % `\url`s
 \usepackage{listings}  % Code listings
-% \usepackage{titling}
-
 
 \usepackage{color}
 
@@ -51,10 +50,51 @@
   \section{Simulation}
   \subsection{Encoder}
   \begin{frame}{Encoder}
+    \begin{figure}[h]
+      \centering
+      \includegraphics{figures/encoder.eps}
+    \end{figure}
+    \begin{equation*}
+      c_i = ENC(u_i) =
+      \left[
+          \begin{array}[h]{c|c}
+            u_i & A u_i
+          \end{array}
+        \right]
+      \quad \text{where} \quad  \begin{dcases}
+        H = \left[
+          \begin{array}[h]{c|c}
+            B & C
+          \end{array}
+        \right] \\
+       A = C^{-1} B
+      \end{dcases}
+    \end{equation*}
   \end{frame}
 
   \subsection{Modulator and channel}
   \begin{frame}{Modulator and channel}
+    \begin{figure}[h]
+      \centering
+      \includegraphics{figures/channel.eps}
+      \label{fig:channel_model}
+    \end{figure}
+    \begin{equation*}
+      \begin{split}
+        d_i
+        = MOD(c_i)
+        = & \begin{dcases}
+          +1 & c_i = 1 \\
+          -1 & c_i = 0
+        \end{dcases} \\
+        r_i
+        = d_i + w_i \quad\text{where}\quad
+        & \begin{dcases}
+          w_i \sim \mathcal{N}(0, \sigma^2) \\
+          \sigma^2 = \left( 2R~ \frac{E_b}{N_o} \right)^{-1}
+        \end{dcases}
+      \end{split}
+    \end{equation*}
   \end{frame}
 
   \subsection{Decoder}
@@ -87,15 +127,14 @@
 
   \begin{frame}{Message passing}
     \begin{minipage}{0.7\linewidth}
-      \begin{figure}[h]
-        \hspace{-0.5cm}
+      \begin{figure}
+        \hspace{-1cm}%
         \includegraphics[scale=1.4]{figures/message-passing.eps}
         \caption{FFG of a generic LDPC code}
         \label{fig:phi_tilde}
       \end{figure}
     \end{minipage}%
     \begin{minipage}{0.4\linewidth}
-      % \begin{flushright}
       ~~ $\textcolor{my-orange}{ch}$ channel information
 
       ~~ $\textcolor{my-blue}{F}$ forward messages
@@ -103,7 +142,6 @@
       ~~ $\textcolor{my-purple}{B}$ backward messages
 
       ~~ $\textcolor{my-green}{b}$ extrinsic information
-      % \end{flushright}
     \end{minipage}
   \end{frame}
 
