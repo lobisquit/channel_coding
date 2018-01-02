@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -97,14 +97,16 @@ def step(n, rate, SNRs):
 
     # collect results for current couple (n, rate)
     summary = pd.concat(results)
-    summary.to_csv('results/SNRvsPe_n-{}_rate-{}.csv'\
+    summary.to_csv('results/other/SNRvsPe_n-{}_rate-{}.csv'\
                    .format(n, rate.replace('/', '')), index=None)
 
 def configurations():
     # extract ones with (current) zero probability of error
     current_result = pd.read_csv('results/SNRvsPe.csv.gz')
     current_result = current_result.groupby(['n', 'rate', 'SNR']).mean()
-    current_result = current_result[current_result['errors'] == 0]
+    current_result = current_result[
+        (current_result['errors'] > 0) & (current_result['errors'] < 0.01)
+    ]
 
     # remove SNR from index
     current_result.reset_index(level=2, inplace=True)
@@ -126,9 +128,9 @@ else:
     Parallel(jobs=cmd_args.processes)(delayed(step)(*config) for config in configurations())
 
 # merge all resulting csv
-csvs = list( Path('results/').glob('SNRvsPe_*.csv') )
+csvs = list( Path('results/other/').glob('SNRvsPe_*.csv') )
 data = pd.concat([pd.read_csv(csv) for csv in csvs])
-data.to_csv('results/SNRvsPe.csv.gz', index=None, compression='gzip')
+data.to_csv('results/other/SNRvsPe.csv.gz', index=None, compression='gzip')
 
 # delete chunks, leaving complete pack
 for csv in csvs:
