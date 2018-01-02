@@ -99,17 +99,33 @@
 
   \subsection{Decoder}
 
-  \begin{frame}{Function $\tilde{\phi}$}
-    \begin{figure}[h]
-      \centering
-      \includegraphics[width=\textwidth]{../plots/figures/phi_tilde.pdf}
-      \vspace{-1cm}
-      \caption{Function is approximated for small and high values of $x$}
-      \label{fig:phi_tilde}
-    \end{figure}
+  \definecolor{my-orange}{HTML}{FFCD64}
+  \definecolor{my-green}{HTML}{92FF64}
+  \definecolor{my-purple}{HTML}{B164FF}
+  \definecolor{my-blue}{HTML}{64C3FF}
+
+  \begin{frame}{Message passing}
+    \begin{minipage}{0.7\linewidth}
+      \begin{figure}
+        \hspace{-0.8cm}%
+        \includegraphics[scale=1.4]{figures/message-passing.eps}
+        \caption{FFG of a generic LDPC code}
+        \label{fig:phi_tilde}
+      \end{figure}
+    \end{minipage}%
+    \begin{minipage}{0.4\linewidth}
+      \begin{equation*}
+        \begin{split}
+          \textcolor{my-orange}{ch} & ~~ \text{channel information} \\
+          \textcolor{my-blue}{F} & ~~ \text{forward messages} \\
+          \textcolor{my-purple}{B} & ~~ \text{backward messages} \\
+          \textcolor{my-green}{b} & ~~ \text{extrinsic information} \\
+        \end{split}
+      \end{equation*}
+    \end{minipage}
   \end{frame}
 
-  \begin{frame}{Sparse matrices}
+  \begin{frame}{Sparse matrix}
     % data structure + performances
     % specific operations implemented
     \begin{figure}[h]
@@ -120,29 +136,15 @@
     \end{figure}
   \end{frame}
 
-  \definecolor{my-orange}{HTML}{FFCD64}
-  \definecolor{my-green}{HTML}{92FF64}
-  \definecolor{my-purple}{HTML}{B164FF}
-  \definecolor{my-blue}{HTML}{64C3FF}
 
-  \begin{frame}{Message passing}
-    \begin{minipage}{0.7\linewidth}
-      \begin{figure}
-        \hspace{-1cm}%
-        \includegraphics[scale=1.4]{figures/message-passing.eps}
-        \caption{FFG of a generic LDPC code}
-        \label{fig:phi_tilde}
-      \end{figure}
-    \end{minipage}%
-    \begin{minipage}{0.4\linewidth}
-      ~~ $\textcolor{my-orange}{ch}$ channel information
-
-      ~~ $\textcolor{my-blue}{F}$ forward messages
-
-      ~~ $\textcolor{my-purple}{B}$ backward messages
-
-      ~~ $\textcolor{my-green}{b}$ extrinsic information
-    \end{minipage}
+  \begin{frame}{Function $\tilde{\phi}$}
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=\textwidth]{../plots/figures/phi_tilde.pdf}
+      \vspace{-1cm}
+      \caption{Function is approximated for small and high values of $x$}
+      \label{fig:phi_tilde}
+    \end{figure}
   \end{frame}
 
   \section{Results}
