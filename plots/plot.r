@@ -4,16 +4,19 @@ library(scales)
 library(extrafont)
 library(gridExtra)
 library(latex2exp)
+library(readr)
+library(data.table)
 
 source('plots/utils.r')
 
-data <- read.csv('results/SNRvsPe.csv.gz')
+data <- read_csv('results/SNRvsPe.csv.gz')
 
 ## count errors and number of message passing iteration
 ## per (n, rate, SNR) configuration, keeping
 ## "time per word" information as well
-error_detection <- aggregate(
-  cbind(iterations, errors) ~ n + rate + SNR + time.per.word, data, mean)
+error_detection <- data.table(data)[,list(iters = mean(iterations),
+                                         errors = mean(errors)),
+                                   by = 'n,rate,SNR,`time per word`']
 
 p <- ggplot(data = error_detection[error_detection$errors != 0,],
            mapping = aes(x = SNR,
