@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -101,19 +101,14 @@ def step(n, rate, SNRs):
                    .format(n, rate.replace('/', '')), index=None)
 
 def configurations():
-    # extract ones with (current) zero probability of error
-    current_result = pd.read_csv('results/SNRvsPe.csv.gz')
-    current_result = current_result.groupby(['n', 'rate', 'SNR']).mean()
-    current_result = current_result[
-        (current_result['errors'] > 0) & (current_result['errors'] < 0.01)
-    ]
+    for n in specs.get_code_lengths():
+        for rate in ['1/2']:
+            # compute desired SNR levels, but only for rate 1/2
+            old_SNRs = np.linspace(1, 3, 10)
+            new_SNRs = np.linspace(1.5, 2.5, 11)
 
-    # remove SNR from index
-    current_result.reset_index(level=2, inplace=True)
-
-    for n, rate in current_result.index:
-        SNRs = current_result.loc[n, rate]['SNR'].unique()
-        yield n, rate, SNRs
+            SNRs = sorted(list(set(new_SNRs) - set(old_SNRs)))
+            yield n, rate, SNRs
 
 # read wanted number of processes
 parser = argparse.ArgumentParser(description='Test LDPC codes.')
