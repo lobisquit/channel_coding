@@ -7,7 +7,7 @@ library(latex2exp)
 library(readr)
 library(data.table)
 
-source('plots/utils.r')
+source('report/plots/utils.r')
 
 data <- read_csv('results/SNRvsPe.csv.gz')
 
@@ -29,40 +29,21 @@ p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
   labs(colour = 'Code lengths') +
 
   geom_line() +
+  scale_colour_distiller(palette = "Spectral") +
   facet_wrap(~ rate, nrow = 2) +
   scale_y_log10(breaks = 10^seq(10, -10),
                 labels = trans_format('log10', math_format(10^.x))) +
   scale_x_continuous(breaks = unique(data$SNR),
                      labels = function(x) round(x, digits=2)) +
-  theme(
-    rect = element_rect(fill = 'black'),
-    panel.background = element_rect(fill = 'transparent', colour = NA),
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(colour='grey10'),
+  mytheme
 
-    axis.text = element_text(colour = 'grey50'),
-    axis.text.x = element_text(angle = 45, hjust = 1),
+ggsave(plot = p + theme(plot.background = element_rect(fill = 'transparent',
+                                                       colour=NA)),
+       filename = 'report/figures/Pe_vs_SNR_per_length.eps',
+       width = 24 * 0.8,
+       height = 17 * 0.8,
+       unit = 'cm',
+       device = 'eps',
+       bg = 'transparent')
 
-    legend.background = element_rect(fill = 'transparent', colour = NA),
-    legend.title = element_text(colour = 'grey60',
-                                size = rel(1.1),
-                                vjust=1),
-    legend.text = element_text(colour  ='grey60'),
-
-    strip.background = element_rect(fill = 'grey10', colour = NA),
-    strip.text = element_text(colour = 'grey50'),
-
-    axis.title = element_text(colour = 'grey60', size = rel(1.1)),
-    )
-
-
-
-## ggsave(plot = p,
-##        filename = 'plots/figures/SNRvsPe.png',
-##        width = 10,
-##        height = 8,
-##        unit = 'cm',
-##        device = 'png',
-##        bg = 'transparent')
-
-p
+p + theme(plot.background=element_rect(fill = 'black'))

@@ -140,7 +140,7 @@
   \begin{frame}{Function $\tilde{\phi}$}
     \begin{figure}[h]
       \centering
-      \includegraphics[width=\textwidth]{../plots/figures/phi_tilde.pdf}
+      \includegraphics[width=\textwidth]{figures/phi_tilde.pdf}
       \vspace{-1cm}
       \caption{Function is approximated for small and high values of $x$}
       \label{fig:phi_tilde}
@@ -148,16 +148,38 @@
   \end{frame}
 
   \section{Results}
-  \subsection{Code length}
-  \begin{frame}{Code length}
+  \subsection{Error detection}
+  \begin{frame}{Error detection per code length}
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=\textwidth]{figures/Pe_vs_SNR_per_length.eps}
+    \end{figure}
   \end{frame}
 
-  \subsection{Code rate}
-  \begin{frame}{Code rate}
+  \begin{frame}{Error detection per code rate}
+    \begin{figure}[h]
+      \centering
+      \vspace{-2mm}%
+      \hspace{-6mm}%
+      \includegraphics[width=1.05\textwidth]{figures/Pe_vs_SNR_per_rate.eps}
+    \end{figure}
   \end{frame}
 
-  \subsection{Message passing iterations}
-  \begin{frame}{Message passing iterations}
+  \subsection{Sum-product iterations}
+  \begin{frame}{Sum-product iterations per code length}
+    \begin{figure}[h]
+      \centering
+      \includegraphics[width=\textwidth]{figures/iters_vs_SNR_per_length.eps}
+    \end{figure}
+  \end{frame}
+
+  \begin{frame}{Sum-product iterations per code rate}
+    \begin{figure}[h]
+      \centering
+      \vspace{-2mm}%
+      \hspace{-6mm}%
+      \includegraphics[width=1.05\textwidth]{figures/iters_vs_SNR_per_rate.eps}
+    \end{figure}
   \end{frame}
 
   \subsection{Message passing algorithm}
