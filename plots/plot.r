@@ -18,7 +18,7 @@ error_detection <- data.table(data)[,list(iterations = mean(iterations),
                                          errors = mean(errors)),
                                    by = 'n,rate,SNR']
 
-p <- ggplot(data = error_detection[error_detection$errors != 0,],
+p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
            mapping = aes(x = SNR,
                          y = errors,
                          color = n,
