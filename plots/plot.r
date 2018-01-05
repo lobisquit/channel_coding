@@ -14,9 +14,9 @@ data <- read_csv('results/SNRvsPe.csv.gz')
 ## count errors and number of message passing iteration
 ## per (n, rate, SNR) configuration, keeping
 ## "time per word" information as well
-error_detection <- data.table(data)[,list(iters = mean(iterations),
+error_detection <- data.table(data)[,list(iterations = mean(iterations),
                                          errors = mean(errors)),
-                                   by = 'n,rate,SNR,`time per word`']
+                                   by = 'n,rate,SNR']
 
 p <- ggplot(data = error_detection[error_detection$errors != 0,],
            mapping = aes(x = SNR,
