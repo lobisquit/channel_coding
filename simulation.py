@@ -6,10 +6,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from joblib import Parallel, delayed
 
 import LDPC
 import specs
-from joblib import Parallel, delayed
 
 ## simulation parameters
 
@@ -52,7 +52,7 @@ def step(n, rate, SNRs):
 
         # generate always the same uniform messages,
         # in order to obtain smoother SNR-Pe curves
-        np.random.seed(1)
+        np.random.seed(0)
 
         # measure total time taken per word
         start = time()
@@ -101,13 +101,15 @@ def step(n, rate, SNRs):
                    .format(n, rate.replace('/', '')), index=None)
 
 def configurations():
-    for n in specs.get_code_lengths():
+     for n in [2016, 2112, 2208, 2304]:
         for rate in ['1/2']:
             # compute desired SNR levels, but only for rate 1/2
             old_SNRs = np.linspace(1, 3, 10)
             new_SNRs = np.linspace(1.5, 2.5, 11)
 
             SNRs = sorted(list(set(new_SNRs) - set(old_SNRs)))
+            print(n, rate, SNRs)
+
             yield n, rate, SNRs
 
 # read wanted number of processes
