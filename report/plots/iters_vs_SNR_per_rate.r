@@ -25,7 +25,7 @@ p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
                          group = rate)) +
   ## axis and legend labels
   xlab(TeX('$E_b / N_o$ \\[dB\\]')) +
-  ylab('Packet Error Rate') +
+  ylab('Iterations') +
   labs(colour = 'Code rates') +
 
   geom_line() +
@@ -45,11 +45,11 @@ p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
 ggsave(plot = p + theme(plot.background = element_rect(
                           fill = 'transparent',
                           colour=NA)),
-       filename = 'report/figures/Pe_vs_SNR_per_rate.eps',
+       filename = 'report/figures/iters_vs_SNR_per_rate.eps',
        width = 24 * 0.8,
        height = 17 * 0.8,
        unit = 'cm',
        device = 'eps',
        bg = 'transparent')
 
-p + theme(plot.background=element_rect(fill = 'black'))
+## p + theme(plot.background=element_rect(fill = 'black'))

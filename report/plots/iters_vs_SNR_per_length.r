@@ -45,4 +45,4 @@ ggsave(plot = p + theme(plot.background = element_rect(
        device = 'eps',
        bg = 'transparent')
 
-p + theme(plot.background=element_rect(fill = 'black'))
+## p + theme(plot.background=element_rect(fill = 'black'))
