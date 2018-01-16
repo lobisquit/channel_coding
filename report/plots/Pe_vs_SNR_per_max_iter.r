@@ -13,7 +13,7 @@ data <- as.data.frame(
   read_csv('results/intermediate_plot_computation.csv.gz')
 )
 
-p <- ggplot(data = data[(data$errors != 0.0) & (data$n == 576), ],
+p <- ggplot(data = data[(data$errors != 0.0) & (data$n == 1248), ],
            mapping = aes(x = SNR,
                          y = errors,
                          color = max_iters,

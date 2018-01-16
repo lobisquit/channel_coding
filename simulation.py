@@ -122,7 +122,7 @@ if cmd_args.processes == 1:
         step(*config)
 else:
     # perform all computations in parallel fashion if requested
-    Parallel(jobs=cmd_args.processes)(delayed(step)(*config) for config in configurations())
+    Parallel(n_jobs=cmd_args.processes)(delayed(step)(*config) for config in configurations())
 
 # merge all resulting csv
 csvs = list( Path('results/other/').glob('SNRvsPe_*.csv') )

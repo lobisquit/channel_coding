@@ -108,3 +108,6 @@ results/SNRvsPe_*.csv
 
 # specification files
 specs/*.csv
+
+# intermediate result file
+results/intermediate_plot_computation.csv.gz
