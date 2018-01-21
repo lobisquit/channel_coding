@@ -18,7 +18,7 @@ error_detection <- data.table(data)[,list(iterations = mean(iterations),
                                          errors = mean(errors)),
                                    by = 'n,rate,SNR']
 
-p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
+p <- ggplot(data = error_detection,
            mapping = aes(x = SNR,
                          y = iterations,
                          color = rate,
@@ -31,8 +31,8 @@ p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
   geom_line() +
   scale_colour_brewer(palette="Spectral") +
   facet_wrap(~ n, nrow = 3) +
-  ## scale_y_log10(breaks = 10^seq(10, -10),
-  ##               labels = trans_format('log10', math_format(10^.x))) +
+  scale_y_continuous(breaks = c(2, 4, 6, 10, 15, 20),
+                     limits = c(0, 20)) +
   scale_x_continuous(#breaks = unique(data$SNR),
                      labels = function(x) round(x, digits=2)) +
   mytheme +

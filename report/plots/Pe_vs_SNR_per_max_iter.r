@@ -32,13 +32,13 @@ p <- ggplot(data = data[(data$errors != 0.0) & (data$n == 1248), ],
                      labels = function(x) round(x, digits=2)) +
   mytheme
 
-## ggsave(plot = p + theme(plot.background = element_rect(fill = 'transparent',
-##                                                        colour=NA)),
-##        filename = 'report/figures/Pe_vs_SNR_per_length.eps',
-##        width = 24 * 0.8,
-##        height = 17 * 0.8,
-##        unit = 'cm',
-##        device = 'eps',
-##        bg = 'transparent')
+ggsave(plot = p + theme(plot.background = element_rect(fill = 'transparent',
+                                                       colour=NA)),
+       filename = 'report/figures/Pe_vs_SNR_per_length.eps',
+       width = 24 * 0.8,
+       height = 17 * 0.8,
+       unit = 'cm',
+       device = 'eps',
+       bg = 'transparent')
 
-p + theme(plot.background=element_rect(fill = 'black'))
+## p + theme(plot.background=element_rect(fill = 'black'))
