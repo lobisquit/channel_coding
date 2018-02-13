@@ -31,7 +31,7 @@ p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
   geom_line() +
   scale_colour_brewer(palette="Spectral") +
   facet_wrap(~ n, nrow = 3) +
-  scale_y_log10(## breaks = 10^seq(10, -10),
+  scale_y_log10(breaks = c(1, 1e-1, 1e-2, 1e-3, 1e-4),
                 labels = trans_format('log10', math_format(10^.x))) +
   scale_x_continuous(#breaks = unique(data$SNR),
                      labels = function(x) round(x, digits=2)) +

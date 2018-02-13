@@ -31,7 +31,7 @@ p <- ggplot(data = error_detection,
   geom_line() +
   scale_colour_distiller(palette = "Spectral") +
   facet_wrap(~ rate, nrow = 2) +
-  scale_y_continuous(breaks = c(1, 2, 3, 4, 5, 10, 15, 20),
+  scale_y_continuous(breaks = c(2, 3, 4, 5, 10, 15, 20),
                      limits = c(0, 20)) +
   scale_x_continuous(#breaks = unique(data$SNR),
                      labels = function(x) round(x, digits=2)) +
