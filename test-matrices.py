@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 from math import sqrt
 from pathlib import Path

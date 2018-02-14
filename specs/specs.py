@@ -15,7 +15,6 @@ def get_code_rates():
 
 def get_code_lengths():
     '''
-
     Returns
     -------
     list

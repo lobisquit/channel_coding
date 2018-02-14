@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 import random
 
 import numpy as np
 import numpy.linalg as npla
-import pytest
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 
 import LDPC
+import pytest
 from specs import *
 
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 from math import sqrt
 from pathlib import Path
@@ -6,10 +7,10 @@ from time import time
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from joblib import Parallel, delayed
 
 import LDPC
 import specs
+from joblib import Parallel, delayed
 
 ## simulation parameters
 
