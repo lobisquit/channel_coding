@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # create ouput files in job directory
-#$ -o /home/lovisott/channel_coding/out_simulation.txt
-#$ -e /home/lovisott/channel_coding/err_simulation.txt
+#$ -o ~/channel_coding/out_simulation.txt
+#$ -e ~/channel_coding/err_simulation.txt
 
 # perform computations in parallel, with 16 processes
 # #$ -q parallel
