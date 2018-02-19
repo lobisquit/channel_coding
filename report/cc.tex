@@ -42,12 +42,12 @@
   \section{Specification}
   \subsection{Design}
   \begin{frame}{Design}
-    For each code rate, a \textsl{compressed} encoding matrix is specified by the standard: it can then be expanded to suit a specific code length.
+    For each code rate, a \textsl{compressed} encoding matrix is specified by the standard: it is then be expanded to suit a specific code length.
 
     \definecolor{little-grey}{HTML}{515151}
     \def\0{{\color{little-grey} 0}}
 
-    \vspace{-0.5cm}%
+    % \vspace{-0.5cm}%
     {\renewcommand{\arraystretch}{0.9}
     \begin{equation*}
       \begin{split}
@@ -100,8 +100,8 @@
         \end{array} \right]
       \end{split}
     \end{equation*}}
-    Each element of \textsl{compressed} version is replaced with a zero matrix if negative and a certain circular right shift of identity matrix otherwise.
-    \vspace{0.5cm}
+    % Each element of \textsl{compressed} version is replaced with a zero matrix if negative and a certain circular right shift of identity matrix otherwise.
+    % \vspace{0.5cm}
   \end{frame}
 
   \subsection{Working modes}
@@ -175,10 +175,10 @@
           -1 & c_i = 0
         \end{dcases} \\
         r_i
-        = d_i + w_i \quad\text{where}\quad
+        = d_i + w_i \quad \text{where} ~~~
         & \begin{dcases}
-          w_i \sim \mathcal{N}(0, \sigma^2) \\
-          \sigma^2 = \left( 2R~ \frac{E_b}{N_o} \right)^{-1}
+          w_i \sim \mathcal{N}(0, \sigma_w^2) \\
+          \sigma_w^2 = \left( 2R~ \frac{E_b}{N_o} \right)^{-1}
         \end{dcases}
       \end{split}
     \end{equation*}
@@ -212,7 +212,16 @@
     \end{minipage}
   \end{frame}
 
-  \begin{frame}{Sparse matrix}
+  \begin{frame}{Matrix operations}
+    \begin{figure}
+      \centering
+      \includegraphics{figures/message-passing-step.eps}
+      \caption{Graph node processing is expressed as simple matrix operations.}
+      \label{fig:message_passing_step}
+    \end{figure}
+  \end{frame}
+
+  \begin{frame}{Sparse matrix representation}
     % data structure + performances
     % specific operations implemented
     \begin{figure}[h]
@@ -269,6 +278,21 @@
     \end{figure}
   \end{frame}
 
+  \section{Conclusions}
+  \begin{frame}{Conclusions}
+    \begin{itemize}
+      \item MP performs lots of accesses to messages data structures
+      \item such structures are sparse, since FFG is sparse as well
+    \end{itemize}
+
+    \begin{itemize}
+      \item stronger codes are easily obtained tuning code rate, while increasing code length gives only a slighter improvement
+
+      \item in low SNR regions, MP iterations are almost independent on $n$, while rate tuning becomes essential to lower processing load
+
+      \item in high SNR regions, MP iterations are close to 2 per transmitted word for any coding configuration
+    \end{itemize}
+  \end{frame}
 \end{darkframes}
 
 \end{document}

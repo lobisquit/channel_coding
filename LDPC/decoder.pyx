@@ -87,7 +87,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
         ### INIT
         nonlocal B, F # explicity use higher lever matrices
 
-        # set all backward messages as constants (TODO check if 0 is good)
+        # set all backward messages as constants
         B = B.update_all(lambda x: x * 0)
 
         ### A PRIORI -> initialize a priori channel knowledge
@@ -143,7 +143,7 @@ def decoder(H, sigma_w, u_distrib=None, max_iterations=10):
 
         # valid codeword was not found up to max_iterations so declare
         # failure, returning a vector that, by NaN specification, fails
-        # all equality tests with common numbers
+        # all equality tests
         u = np.empty( (k,) )
         u.fill(np.nan)
         return u, max_iterations
