@@ -9,7 +9,7 @@ library(data.table)
 
 source('report/plots/utils.r')
 
-data <- read_csv('results/SNRvsPe.csv.gz')
+## data <- read_csv('results/SNRvsPe.csv.gz')
 
 ## count errors and number of message passing iteration
 ## per (n, rate, SNR) configuration, keeping
@@ -18,7 +18,7 @@ error_detection <- data.table(data)[,list(iterations = mean(iterations),
                                          errors = mean(errors)),
                                    by = 'n,rate,SNR']
 
-p <- ggplot(data = error_detection[error_detection$errors != 0.0,],
+p <- ggplot(data = error_detection[error_detection$errors > 1e-4,],
            mapping = aes(x = SNR,
                          y = errors,
                          color = n,
@@ -31,7 +31,8 @@ p <- ggplot(data = error_detection[error_detection$errors != 0.0,],
   geom_line() +
   scale_colour_distiller(palette = "Spectral") +
   facet_wrap(~ rate, nrow = 2) +
-  scale_y_log10(breaks = 10^seq(10, -10),
+  scale_y_log10(breaks = c(1, 1e-1, 1e-2, 1e-3, 1e-4),
+                limits = c(1e-4, 1),
                 labels = trans_format('log10', math_format(10^.x))) +
   scale_x_continuous(## breaks = unique(data$SNR),
                      labels = function(x) round(x, digits=2)) +
