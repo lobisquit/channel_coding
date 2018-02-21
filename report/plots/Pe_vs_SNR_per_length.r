@@ -9,7 +9,7 @@ library(data.table)
 
 source('report/plots/utils.r')
 
-## data <- read_csv('results/SNRvsPe.csv.gz')
+data <- read_csv('results/SNRvsPe.csv.gz')
 
 ## count errors and number of message passing iteration
 ## per (n, rate, SNR) configuration, keeping
