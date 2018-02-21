@@ -32,3 +32,7 @@ python3 simulation.py
 ```
 
 - check result file is created, namely `SNRvsPe.csv.gz` in our context
+
+# Missing `specs/` files
+
+Private version (with licensed `specs/` matrices) is [here](https://bitbucket.org/lobisquit/channel_coding); I have done this because of parity check matrices licensing by IEEE.
